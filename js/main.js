@@ -347,9 +347,14 @@ function parsePGNLines(pgn) {
     });
     var overlay = new SimpleArrowOverlay('board_wrapper');
 
-    document.getElementById('board_wrapper').addEventListener('touchmove', function (e) {
-        e.preventDefault();
+    document.addEventListener('touchmove', function (e) {
+        if (!e.target.closest('#board')) return;
+        if (window.innerWidth < 768) return; // skip on mobile
+        e.preventDefault(); // prevent scroll only when dragging on board
       }, { passive: false });
       
-// When the page is ready for it, run populatePGNDropdown()
       
+// When the page is ready for it, run populatePGNDropdown()
+    document.addEventListener('DOMContentLoaded', function() {
+        populatePGNDropdown();
+      });

@@ -1,1 +1,15 @@
-ideas for a trap
+ideas for a trap finding algo in chess with an engine and data
+
+The move does not lose advantage past 0
+
+analyze given fen position for score, and 5 best lines (n depth) -> score (-/+ integer), lines (pgn[5] descending)
+
+filter out moves which will cause the target rep color (white or black) to lose advantage
+
+for each of the remaining best moves, calculate which of the resulting positions is most "forcing" for the opponent. 
+Forcing could mean that the move has the lowest number of possible responses for the opponent which allow them to not lose score from the previous evaluation
+i.e. one move might be the best engine move, but another move only has 1 proper response, and it's not obvious, so if that move isn't made then we end up with higher advantage than if we had played an engine move
+
+We also have access to FEN based next move probabilities from lichess data. We would want to prioritize lines in which this single reponses possible is shown to be a less probable response in the game history data
+
+At the end of this, we should have a function in python which can take a FEN and then return the most "forcing" move

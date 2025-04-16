@@ -157,11 +157,12 @@ function getFenKey(fen) {
   
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key.startsWith(`pgn-saved:${userColor}:`)) {
+      if (key.startsWith(`pgn-saved:`)) {
         const event = key.split(':')[2];
         const option = document.createElement('option');
         option.value = key;
-        option.textContent = `${event} (${userColor})`;
+        let col = key.split(':')[1];
+        option.textContent = `${event} (${col})`;
         selector.appendChild(option);
       }
     }

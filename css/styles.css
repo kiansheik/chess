@@ -1,146 +1,36 @@
-
-
-body {
-  font-family: sans-serif;
-  padding: 20px;
-  background: #f4f4f4;
-}
-
-#board {
-  width: 400px;
-  margin-bottom: 20px;
-}
-
-
-
-textarea {
-  width: 100%;
-  height: 100px;
-}
-
-#pgn-input {
-    width: 400px;
-}
-
-.pgn-label.small {
-  font-size: 0.85em;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-#trainer-controls {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  max-width: 100%;
-}
-
-#trainer-controls button,
-#trainer-controls label {
-  padding: 10px 16px;
-  font-weight: bold;
-  font-size: 1rem;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-#reset-btn {
-  background-color: #e74c3c;
-}
-
-#download-btn {
-  background-color: #3498db;
-}
-
-#upload-label {
-  background-color: #2ecc71;
-  position: relative;
-  display: inline-block;
-  text-align: center;
-}
-
-#upload-input {
-  display: none;
-}
-
-@media (max-width: 500px) {
-  #trainer-controls {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #trainer-controls button,
-  #trainer-controls label {
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-
-.stats-box {
-    flex: 1;padding:10px;border:1px solid #ccc;
-}
-
-.stats-prev {
-   background-color:  #fff;
-}
-
-.stats-current {
-   background-color: #f9f9f9;
-}
-
-.stats-container {
-    width: 400px;
-    display: flex; gap: 20px; margin-top: 10px;
-}
-
 body {
   font-family: sans-serif;
   background: #f4f4f4;
   margin: 0;
-  padding: 10px;
+  padding: 0;
 }
 
 .container {
-  max-width: 100%;
-  padding: 10px;
-  box-sizing: border-box;
+  max-width: 720px;
   margin: 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
 }
 
 #board_wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   position: relative;
-  width: 100%;
-  max-width: 100vw;
   margin: 0 auto;
+  width: 100%;
+  max-width: 400px;
 }
 
 #board {
-  width: 100vw;
-  max-width: 100vw;
-  height: auto;
+  width: 100% !important;
+  height: auto !important;
   aspect-ratio: 1 / 1;
 }
 
-#drawing_canvas, #primary_canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-  z-index: 5;
-}
-
-/* Responsive buttons */
 #trainer-controls {
   display: flex;
   flex-wrap: wrap;
@@ -150,32 +40,90 @@ body {
 }
 
 #trainer-controls button,
-#trainer-controls label {
-  padding: 10px 16px;
+#trainer-controls label,
+.button-group button,
+.button-group label,
+.button-group .btn {
+  padding: 1rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  font-size: 1rem;
-  color: white;
+  border-radius: 8px;
   border: none;
-  border-radius: 4px;
+  text-align: center;
+  color: white;
   cursor: pointer;
-  white-space: nowrap;
-}
-
-#reset-btn { background-color: #e74c3c; }
-#download-btn { background-color: #3498db; }
-#upload-label { background-color: #2ecc71; }
-#upload-input { display: none; }
-
-textarea,
-input,
-select {
   width: 100%;
   box-sizing: border-box;
-  font-size: 1rem;
-  margin-bottom: 10px;
 }
 
-/* Stats box layout */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Button colors */
+#reset-btn,
+.btn-red { background-color: #e74c3c; }
+
+#download-btn,
+.btn-blue { background-color: #3498db; }
+
+#upload-label,
+.btn-green { background-color: #2ecc71; }
+
+#upload-label:hover,
+#download-btn:hover,
+#reset-btn:hover,
+.btn-red:hover,
+.btn-blue:hover,
+.btn-green:hover {
+  filter: brightness(0.9);
+}
+
+#upload-input {
+  display: none;
+}
+
+/* Inputs and sliders */
+textarea,
+input,
+select,
+button {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input[type="range"] {
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* Status */
+#status {
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* Labels */
+label {
+  font-weight: bold;
+  display: block;
+  margin-top: 10px;
+}
+
+/* Stats section */
 .stats-container {
   display: flex;
   flex-direction: column;
@@ -189,122 +137,52 @@ select {
   background: #fff;
 }
 
-/* General layout spacing */
-.container {
-  padding: 15px;
+/* Responsive layout tweaks */
+@media (min-width: 768px) {
+  .button-group {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .button-group button,
+  .button-group label,
+  .button-group .btn {
+    width: 32%;
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
 }
 
-/* Make inputs more tappable and wider */
-input[type="text"],
-textarea,
-select,
-button {
-  width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  margin: 8px 0;
-  box-sizing: border-box;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+@media (max-width: 768px) {
+  html, body {
+    overscroll-behavior: contain;
+    touch-action: auto;
+  }
+
+  #trainer-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #trainer-controls button,
+  #trainer-controls label {
+    max-width: 300px;
+  }
 }
 
-/* PGN TextArea */
-textarea {
-  min-height: 120px;
-  resize: vertical;
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: auto;
+  touch-action: pan-y; /* allow vertical scrolling */
+  -webkit-overflow-scrolling: touch; /* momentum scroll on iOS */
+}
+canvas {
+  touch-action: none; /* allow touch-drag on board but not prevent scrolling */
+  pointer-events: none; /* don't block UI */
 }
 
-/* Buttons */
-button {
-  background-color: #3498db;
-  color: white;
-  font-weight: bold;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-
-button:hover {
-  background-color: #2980b9;
-}
-
-button:active {
-  background-color: #2471a3;
-}
-
-#reset-btn {
-  background-color: #e74c3c;
-}
-
-#reset-btn:hover {
-  background-color: #c0392b;
-}
-
-#upload-label,
-#download-btn {
-  background-color: #2ecc71;
-}
-
-#upload-label:hover,
-#download-btn:hover {
-  background-color: #27ae60;
-}
-
-#upload-input {
-  display: none;
-}
-
-/* Sliders */
-input[type="range"] {
-  width: 100%;
-  margin: 10px 0;
-}
-
-/* Status and labels */
-#status {
-  font-size: 1rem;
-  margin-top: 10px;
-}
-
-label {
-  font-weight: bold;
-  display: block;
-  margin-top: 10px;
-}
-
-/* Standardized action buttons */
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.button-group button,
-.button-group label {
-  width: 100%;
-  padding: 14px;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.button-group button,
-.button-group label {
-  width: 100%;
-  padding: 14px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border-radius: 8px;
-  border: none;
-  text-align: center;
-  box-sizing: border-box;
-  display: block;
-}
-
-#upload-label {
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
+#board_wrapper {
+  touch-action: pan-y;
 }

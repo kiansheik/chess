@@ -1,6 +1,10 @@
-#board_wrapper{
-    position: relative; width: 400px; touch-action: none;
-}
+#board_wrapper {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    touch-action: manipulation; /* Allow scroll/swipe gestures */
+  }
+  
 
 #primary_canvas, #drawing_canvas{
     position: absolute; 
