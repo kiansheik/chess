@@ -346,3 +346,8 @@ function parsePGNLines(pgn) {
       showArrows: []
     });
     var overlay = new SimpleArrowOverlay('board_wrapper');
+
+    document.getElementById('board_wrapper').addEventListener('touchmove', function (e) {
+        e.preventDefault();
+      }, { passive: false });
+      

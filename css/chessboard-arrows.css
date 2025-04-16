@@ -1,5 +1,5 @@
 #board_wrapper{
-    position: relative;
+    position: relative; width: 400px; touch-action: none;
 }
 
 #primary_canvas, #drawing_canvas{
