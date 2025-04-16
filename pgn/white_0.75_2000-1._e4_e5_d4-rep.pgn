@@ -1,0 +1,22 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. e4 e5 2. d4 exd4 ( 2... Nc6 3. d5 Nce7 ( 3... Nd4 4. c3 Nb5 ( 4... Bc5 5.
+Bd3 ) ( 4... Qh4 5. Bd3 Bc5 ( 5... Nb5 6. Nf3 ) ( 5... Nf6 6. g3 ) 6. g3 ) (
+4... Nf6 5. Bd3 Bc5 ( 5... d6 6. cxd4 ) ( 5... Nb5 6. Bxb5 ) ( 5... c5 6. cxd4
+) ( 5... c6 6. cxd4 ) 6. cxd4 ) ( 4... c5 5. Nd2 ) ( 4... Bb4 5. Bd3 ) 5. Bxb5
+c6 ( 5... a6 6. Bd3 d6 ( 6... Nf6 7. Nf3 ) ( 6... Bc5 7. h3 ) ( 6... b5 7. Nf3
+) 7. Nf3 ) 6. dxc6 dxc6 ( 6... bxc6 7. Be2 Nf6 ( 7... d5 8. exd5 ) ( 7... Bc5
+8. b4 ) ( 7... Bb7 8. Nd2 ) 8. Nf3 ) 7. Qxd8+ Kxd8 8. Be2 ) 4. c4 Ng6 ( 4... d6
+5. h4 ) 5. Be3 Nf6 ( 5... Bb4+ 6. Nd2 ) 6. Nd2 ) 3. Qxd4 Nc6 4. Qc4 Nf6 ( 4...
+d6 5. Bf4 Be6 6. Qc3 ) ( 4... Ne5 5. Qc3 d6 ( 5... Bd6 6. f4 ) ( 5... Nc6 6.
+Qf3 ) ( 5... f6 6. Nf3 ) ( 5... Qf6 6. Ne2 ) 6. Nf3 ) 5. Bg5 Be7 ( 5... h6 6.
+Bxf6 Qxf6 7. Nc3 Bb4 ( 7... b6 8. O-O-O ) ( 7... d6 8. Nf3 ) ( 7... Nd4 8. Nd5
+) ( 7... Ne5 8. Qxc7 ) 8. O-O-O ) ( 5... Ne5 6. Qc3 ) 6. Nc3 O-O ( 6... Ne5 7.
+Qe2 ) ( 6... d6 7. f4 ) 7. h4 *
+

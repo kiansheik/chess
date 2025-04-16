@@ -1,0 +1,38 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+
+1. d4 d5 ( 1... Nf6 2. c4 e6 ( 2... g6 3. Nf3 Bg7 4. Nc3 O-O ( 4... d6 5. e4
+O-O 6. Be2 e5 ( 6... Nbd7 7. O-O e5 ( 7... c5 8. d5 a6 ( 8... Ng4 9. Ng5 ) (
+8... Nb6 9. a4 ) 9. Qc2 Rb8 ( 9... Ng4 10. Ng5 ) ( 9... b5 10. cxb5 ) 10. h3 )
+8. Qc2 exd4 ( 8... c6 9. d5 ) 9. Nxd4 ) ( 6... Nc6 7. d5 Nb8 ( 7... Ne5 8. Nxe5
+dxe5 9. Be3 e6 ( 9... c6 10. O-O ) ( 9... Nd7 10. Qc2 ) 10. Qb3 ) 8. h3 e5 (
+8... Nbd7 9. Be3 ) ( 8... c6 9. O-O ) 9. g4 ) 7. O-O Nc6 8. d5 Ne7 9. Bd2 ) 5.
+e4 d6 6. Be2 e5 ( 6... Nbd7 7. Qc2 e5 ( 7... c5 8. d5 a6 ( 8... Ng4 9. Ng5 ) (
+8... Nb6 9. h3 ) 9. h3 ) 8. Be3 ) ( 6... Nc6 7. Be3 e5 8. d5 Ne7 9. Nd2 Ne8 (
+9... Nd7 10. Qc2 ) 10. Qc2 ) 7. O-O Nc6 8. d5 Ne7 9. Bd2 ) 3. Bg5 Be7 ( 3... d5
+4. Nf3 Be7 5. e3 O-O ( 5... h6 6. Bxf6 Bxf6 7. Qb3 ) ( 5... c6 6. Bh4 ) 6. Nc3
+h6 ( 6... Nbd7 7. cxd5 exd5 8. Bf4 ) ( 6... c6 7. h4 h6 ( 7... Nbd7 8. a3 ) 8.
+Bxf6 ) ( 6... b6 7. h4 ) 7. Bxf6 Bxf6 8. h4 ) 4. Nc3 O-O ( 4... d5 5. e3 O-O (
+5... h6 6. Bxf6 Bxf6 7. Rc1 ) 6. Rc1 c6 ( 6... h6 7. Bxf6 ) ( 6... Nbd7 7. cxd5
+) 7. cxd5 ) 5. e4 d6 ( 5... h6 6. Bf4 ) ( 5... d5 6. e5 Nfd7 ( 6... Ne4 7. h4 )
+7. Bxe7 ) 6. Be2 ) 2. Nf3 Nf6 ( 2... Nc6 3. c4 dxc4 ( 3... e6 4. e3 Nf6 ( 4...
+Bb4+ 5. Nbd2 Nf6 ( 5... dxc4 6. a3 ) 6. Qc2 ) 5. Nbd2 Bb4 ( 5... dxc4 6. a3 )
+6. Qc2 ) 4. d5 Nb4 ( 4... Nb8 5. e4 e6 ( 5... Bg4 6. Bxc4 Nf6 ( 6... e6 7. Qb3
+) ( 6... Bxf3 7. gxf3 ) 7. e5 ) ( 5... b5 6. a4 Bd7 ( 6... c6 7. axb5 ) ( 6...
+Ba6 7. axb5 ) 7. axb5 ) 6. Nc3 exd5 7. Bg5 ) 5. Qa4+ c6 ( 5... Bd7 6. Qxb4 e6 (
+6... e5 7. Qxc4 ) 7. Qxc4 exd5 8. Qxd5 Nf6 ( 8... Bb4+ 9. Bd2 ) 9. Qd3 ) 6.
+Qxb4 Qxd5 ( 6... cxd5 7. Qb5+ ) 7. Nc3 Qe6 ( 7... Qf5 8. e4 ) ( 7... Qd8 8.
+Qxc4 ) 8. e4 ) ( 2... e6 3. c4 Nf6 ( 3... c5 4. cxd5 exd5 5. Qc2 ) 4. cxd5 exd5
+5. Bg5 Be7 6. Qc2 ) 3. e3 e6 ( 3... Nc6 4. a3 Bg4 ( 4... e6 5. b4 a6 ( 5... Bd6
+6. Bb2 O-O ( 6... Bd7 7. c4 ) 7. c4 ) 6. c4 dxc4 ( 6... Be7 7. Nbd2 ) ( 6... b5
+7. cxb5 ) 7. Bxc4 b5 ( 7... Bd6 8. Bb2 O-O ( 8... b5 9. Bd3 ) 9. Qc2 ) 8. Be2 )
+5. b4 e6 ( 5... e5 6. b5 ) 6. c4 a6 ( 6... dxc4 7. Bxc4 Bd6 ( 7... a6 8. Bb2 )
+8. Bb2 ) ( 6... Be7 7. Nbd2 ) 7. Nbd2 ) ( 3... Bg4 4. h3 Bh5 5. Bd2 ) 4. a3 c5
+( 4... Bd6 5. c4 O-O ( 5... dxc4 6. Nc3 O-O 7. e4 ) ( 5... c6 6. b3 ) 6. Qc2 )
+( 4... Be7 5. Bd2 ) 5. Be2 Nc6 ( 5... cxd4 6. exd4 ) 6. b3 *
+
