@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PGN Trainer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -17,16 +18,18 @@
   <script src="/chess/js/main.js" defer></script>
 </head>
 <body>
-
+<div class="container">
   <h1>PGN Trainer (TSR Style)</h1>
-  <button id="reset-btn" onclick="resetStats()" >Reset Stats</button>
+  <div id="control-bar">
+    <button id="reset-btn" onclick="resetStats()" >Reset Stats</button>
 
-  <div id="backup-controls">
-    <button id="download-btn" onclick="downloadStats()">⬇️ Download Stats</button>
-    <label id="upload-label">
-      ⬆️ Upload Stats
-      <input type="file" id="upload-input" onchange="uploadStats(event)" accept=".json">
-    </label>
+    <div id="backup-controls" class="button-group">
+      <button id="download-btn" onclick="downloadStats()">⬇️ Download Stats</button>
+      <label id="upload-label">
+        ⬆️ Upload Stats
+        <input type="file" id="upload-input" onchange="uploadStats(event)" accept=".json">
+      </label>
+    </div>
   </div>
   <div id="board_wrapper">
     <!-- <canvas id="primary_canvas" width="392" height="392" ></canvas>
@@ -65,8 +68,7 @@
   <span id="tsr-lines-value">8</span>
   <br><br>
   <button onclick="startTrainer()">Start Trainer</button>
-
-
+</div>
   <script>
     const tsrSlider = document.getElementById("tsr-lines");
     const tsrDisplay = document.getElementById("tsr-lines-value");

@@ -287,9 +287,9 @@ function parsePGNLines(pgn) {
       const correctMove = legalMoves.find(m => m.san === expectedMove);
   
       overlay.clear();
-      overlay.addArrow(source, target, "red");
+      overlay.addArrow(source, target, "red", userColor);
       if (correctMove) {
-        overlay.addArrow(correctMove.from, correctMove.to, "green");
+        overlay.addArrow(correctMove.from, correctMove.to, "green", userColor);
       }
       overlay.render();
   
@@ -350,4 +350,6 @@ function parsePGNLines(pgn) {
     document.getElementById('board_wrapper').addEventListener('touchmove', function (e) {
         e.preventDefault();
       }, { passive: false });
+      
+// When the page is ready for it, run populatePGNDropdown()
       

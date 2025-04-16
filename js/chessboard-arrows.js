@@ -3,7 +3,7 @@ class SimpleArrowOverlay {
       this.canvas = document.createElement('canvas');
       this.context = this.canvas.getContext('2d');
       this.resFactor = resFactor;
-      this.arrows = []; // now stores {from, to, color}
+      this.arrows = [];
   
       const wrapper = document.getElementById(wrapperId);
       const board = wrapper.querySelector('#board');
@@ -22,7 +22,19 @@ class SimpleArrowOverlay {
       this.context.scale(resFactor, resFactor);
     }
   
-    addArrow(fromSquare, toSquare, color = 'rgba(255, 0, 0, 0.8)') {
+    flipSquare(square) {
+      const file = square.charCodeAt(0) - 'a'.charCodeAt(0);
+      const rank = parseInt(square[1], 10) - 1;
+      const flippedFile = String.fromCharCode('h'.charCodeAt(0) - file);
+      const flippedRank = 8 - rank;
+      return `${flippedFile}${flippedRank}`;
+    }
+  
+    addArrow(fromSquare, toSquare, color = 'rgba(255, 0, 0, 0.8)', orientation = 'white') {
+      if (orientation === 'black') {
+        fromSquare = this.flipSquare(fromSquare);
+        toSquare = this.flipSquare(toSquare);
+      }
       this.arrows.push({ from: fromSquare, to: toSquare, color });
       this.render();
     }
@@ -62,7 +74,6 @@ class SimpleArrowOverlay {
       ctx.lineCap = 'round';
       ctx.stroke();
   
-      // Arrowhead
       const angle = Math.atan2(to.y - from.y, to.x - from.x);
       const headLength = squareSize * 0.3;
       const headX = to.x - headLength * Math.cos(angle);
