@@ -1,9 +1,11 @@
 class TSRTrainer {
-    constructor({ lines, progressStore, maxLines = 8 }) {
-      this.lines = lines; // full list of lines in input order
-      this.progressStore = progressStore;
+    constructor({ lines, pgnId, color, maxLines = 8 }) {
+      this.lines = lines;
+      this.pgnId = pgnId;
+      this.userColor = color;
       this.maxLines = maxLines;
-      this.activeLineIndices = []; // indices of lines currently being studied
+  
+      this.activeLineIndices = [];
       this.lineQueue = [];
       this.currentLine = null;
   
@@ -11,26 +13,25 @@ class TSRTrainer {
       this.recalculateQueue();
     }
   
+    loadProgress() {
+      return loadProgress(this.pgnId, this.userColor);
+    }
+  
     initActiveLines() {
       let count = 0;
       for (let i = 0; i < this.lines.length && count < this.maxLines; i++) {
-        const line = this.lines[i];
-        if (!this.isLineMastered(line)) {
+        if (!this.isLineMastered(this.lines[i])) {
           this.activeLineIndices.push(i);
           count++;
         }
       }
     }
   
-    setMaxLines(count) {
-      this.maxLines = count;
-      this.recalculateQueue();
-    }
-  
     isLineMastered(line) {
       const checkpoints = this.getCheckpoints(line);
+      const progress = this.loadProgress();
       return checkpoints.every(key => {
-        const entry = this.progressStore[key];
+        const entry = progress[key];
         if (!entry) return false;
         const total = entry.correct + entry.incorrect;
         return total >= 3 && (entry.correct / total) >= 0.8;
@@ -40,40 +41,43 @@ class TSRTrainer {
     getCheckpoints(line) {
       const checkpoints = [];
       const game = new Chess();
-      for (let move of line) {
+      for (let i = 0; i < line.length; i++) {
         const fen = getFenKey(game.fen());
-        checkpoints.push(`${fen}|${move}`);
-        game.move(move);
+        const move = game.move(line[i], { sloppy: true });
+        if (!move) break;
+  
+        const moveColor = (i % 2 === 0) ? 'w' : 'b';
+        if (this.userColor[0] === moveColor) {
+          checkpoints.push(`${fen}|${line[i]}`);
+        }
       }
       return checkpoints;
     }
   
     recalculateQueue() {
       const now = Date.now();
+      const progress = this.loadProgress();
   
       const candidates = this.activeLineIndices
         .filter(i => !this.isLineMastered(this.lines[i]))
         .map(i => {
           const line = this.lines[i];
           const checkpoints = this.getCheckpoints(line);
-          let totalAttempts = 0;
-          let correctAttempts = 0;
-          let lastSeen = 0;
+          let total = 0, correct = 0, lastSeen = 0;
   
           for (const key of checkpoints) {
-            const stats = this.progressStore[key];
+            const stats = progress[key];
             if (stats) {
               const attempts = (stats.correct || 0) + (stats.incorrect || 0);
-              totalAttempts += attempts;
-              correctAttempts += stats.correct || 0;
+              total += attempts;
+              correct += stats.correct || 0;
               lastSeen = Math.max(lastSeen, new Date(stats.lastSeen || 0).getTime());
             }
           }
   
-          const accuracy = totalAttempts ? correctAttempts / totalAttempts : 0;
+          const accuracy = total ? correct / total : 0;
           const recencyScore = lastSeen ? now - lastSeen : Infinity;
-          const accuracyScore = 1 - accuracy;
-          const score = recencyScore * 0.7 + accuracyScore * 0.3;
+          const score = recencyScore * 0.7 + (1 - accuracy) * 0.3;
   
           return { line, score };
         });
@@ -84,11 +88,10 @@ class TSRTrainer {
   
     getNextLine() {
       if (!this.lineQueue.length) this.recalculateQueue();
-  
-      const next = this.lineQueue.find(line => line !== this.currentLine) || this.lineQueue[0];
+      const next = this.lineQueue.find(l => l !== this.currentLine) || this.lineQueue[0];
       this.currentLine = next;
-      this.lineQueue = this.lineQueue.filter(line => line !== next);
-      return this.currentLine;
+      this.lineQueue = this.lineQueue.filter(l => l !== next);
+      return next;
     }
   
     resetLineProgress() {
@@ -98,7 +101,6 @@ class TSRTrainer {
       }
     }
   
-    // Call when a line is mastered to add the next unstudied index
     addNextUnseenLine() {
       const nextIndex = this.activeLineIndices.length;
       if (nextIndex < this.lines.length && !this.isLineMastered(this.lines[nextIndex])) {
@@ -117,6 +119,7 @@ class TSRTrainer {
   }
   
   window.TSRTrainer = TSRTrainer;
+  
   
     
   function updateMasteredLineCount() {

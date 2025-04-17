@@ -89,7 +89,8 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
         const maxLines = parseInt(document.getElementById("tsr-lines")?.value || 8, 10);
         tsrTrainer = new TSRTrainer({
           lines: lineSequences,
-          progressStore: progress,
+          pgnId: pgnId,
+          color: userColor,
           maxLines: maxLines
         });
       
@@ -317,13 +318,14 @@ function parsePGNLines(pgn) {
     
 
   function autoPlayOpponentMove() {
-    if (currentIndex >= currentTrainingLine.length) return;
-  
+    if (!currentTrainingLine || currentIndex >= currentTrainingLine.length) return;
+
     const move = currentTrainingLine[currentIndex];
     game.move(move);
     board.position(game.fen());
     currentIndex++;
   
+    // Update "current question" stats + show opponent move context
     if (currentIndex < currentTrainingLine.length) {
       const fen = game.fen();
       const nextMove = currentTrainingLine[currentIndex];
