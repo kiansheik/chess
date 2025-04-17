@@ -27,7 +27,7 @@ function getFenKey(fen) {
   function recordAttempt(fen, correct, timeTaken, pgnSoFar, pgnId, color, expectedMove) {
     const progress = loadProgress(pgnId, color);
     const key = getQuestionKey(fen, expectedMove);
-    const now = new Date().toISOString();
+    const now = Date.now(); // numeric timestamp instead of ISO string
   
     if (!progress[key]) {
       progress[key] = {
@@ -45,7 +45,7 @@ function getFenKey(fen) {
   
     const total = entry.correct + entry.incorrect;
     entry.averageTime = ((entry.averageTime * (total - 1)) + timeTaken) / total;
-    entry.lastSeen = now;
+    entry.lastSeen = now; // update with numeric timestamp
   
     saveProgress(pgnId, color, progress);
   }
@@ -168,13 +168,21 @@ function getFenKey(fen) {
     }
   }
   
-  function loadSelectedPGN() {
+function loadSelectedPGN() {
     const selector = document.getElementById('pgn-selector');
     const key = selector.value;
     const savedPGN = localStorage.getItem(key);
     if (savedPGN) {
-      document.getElementById('pgn-input').value = savedPGN;
-      startTrainer(); // reuse the flow
+        document.getElementById('pgn-input').value = savedPGN;
+
+        // Set the color based on the key
+        const color = key.split(':')[1];
+        const colorSelect = document.getElementById('color-select');
+        if (colorSelect) {
+            colorSelect.value = color;
+        }
+
+        startTrainer(); // reuse the flow
     }
-  }
+}
   
