@@ -319,24 +319,37 @@ function parsePGNLines(pgn) {
 
   function autoPlayOpponentMove() {
     if (!currentTrainingLine || currentIndex >= currentTrainingLine.length) return;
-
-    const move = currentTrainingLine[currentIndex];
-    game.move(move);
-    board.position(game.fen());
+  
+    const moveSan = currentTrainingLine[currentIndex];
+    const move = game.move(moveSan, { sloppy: true });
+    if (!move) return; // safety check
+  
+    const newFen = game.fen();
+    if (board.fen !== newFen) {
+      // If your library supports board.move(), use this instead for animation:
+      if (board.move) {
+        board.move(`${move.from}-${move.to}`);
+      } else {
+        board.position(newFen); // fallback
+      }
+      board.fen = newFen; // store it for next comparison
+    }
+  
     currentIndex++;
   
-    // Update "current question" stats + show opponent move context
+    // Update stats box
     if (currentIndex < currentTrainingLine.length) {
-      const fen = game.fen();
       const nextMove = currentTrainingLine[currentIndex];
-      const key = getQuestionKey(fen, nextMove);
+      const key = getQuestionKey(game.fen(), nextMove);
       const stats = getStatsByKey(key, pgnId, userColor);
       document.getElementById('stats-box').innerHTML = formatStats(stats, {
-        lastMove: { color: userColor, san: move }
+        lastMove: { color: userColor, san: moveSan }
       });
     }
+  
     updateEngineSuggestion();
   }
+  
   
 
     function onSnapEnd() {
@@ -346,6 +359,7 @@ function parsePGNLines(pgn) {
     board = Chessboard('board', {
       draggable: true,
       position: 'start',
+      animate: true,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd,
       showArrows: []
