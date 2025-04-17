@@ -272,9 +272,9 @@ function parsePGNLines(pgn) {
       if (turn === expectedColor) {
         setTimeout(autoPlayOpponentMove, 300);
       }
+      updateEngineSuggestion()
     } else {
       game.undo();
-  
       awaitingCorrection = true;
       expectedCorrection = expectedMove;
   
@@ -311,6 +311,7 @@ function parsePGNLines(pgn) {
     }
   
     updateStatus();
+    updateEngineSuggestion();
   }
     
 
@@ -331,6 +332,7 @@ function parsePGNLines(pgn) {
         lastMove: { color: userColor, san: move }
       });
     }
+    updateEngineSuggestion();
   }
   
 
@@ -358,3 +360,92 @@ function parsePGNLines(pgn) {
     document.addEventListener('DOMContentLoaded', function() {
         populatePGNDropdown();
       });
+
+      const stockfish = new Worker('/chess/js/stockfish.js');
+stockfish.onmessage = (e) => {
+  if (typeof e.data === "string") handleEngineOutput(e.data);
+};
+
+function updateEngineSuggestion() {
+    if (!document.getElementById('engine-toggle').checked) return;
+  
+    const depth = parseInt(document.getElementById('engine-depth').value) || 15;
+    const fen = game.fen();
+  
+    stockfish.postMessage("uci");
+    stockfish.postMessage("setoption name MultiPV value 3"); // 👈 top 3 lines
+    stockfish.postMessage(`position fen ${fen}`);
+    stockfish.postMessage(`go depth ${depth}`);
+  }
+  
+  
+  
+  let engineLines = [];
+
+  function handleEngineOutput(line) {
+    if (line.startsWith("info") && line.includes(" pv ")) {
+      const multipvMatch = line.match(/multipv (\d+)/);
+      const scoreMatch = line.match(/score (cp|mate) (-?\d+)/);
+      const pvMatch = line.match(/ pv (.+)/);
+  
+      if (pvMatch) {
+        const uciMoves = pvMatch[1].trim().split(" ");
+        const multipv = multipvMatch ? parseInt(multipvMatch[1], 10) : 1;
+        let score = null;
+  
+        if (scoreMatch) {
+          const type = scoreMatch[1];
+          const value = parseInt(scoreMatch[2], 10);
+          score = type === 'cp' ? (value / 100).toFixed(2) : `#${value}`;
+        }
+  
+        engineLines[multipv - 1] = { uciMoves, score };
+      }
+    }
+  
+    if (line.startsWith("bestmove")) {
+      overlay.clear();
+  
+      const suggestionsHTML = engineLines.slice(0, 3).map((entry, index) => {
+        if (!entry) return "";
+  
+        const { uciMoves, score } = entry;
+        const tempGame = new Chess(game.fen());
+        const sanMoves = [];
+  
+        for (const uci of uciMoves.slice(0, 5)) {
+          const move = tempGame.move({ from: uci.slice(0, 2), to: uci.slice(2, 4), promotion: 'q' });
+          if (!move) break;
+          sanMoves.push(move.san);
+        }
+  
+        // Draw arrow for top line
+        if (index === 0 && uciMoves[0]) {
+          const from = uciMoves[0].slice(0, 2);
+          const to = uciMoves[0].slice(2, 4);
+          overlay.addArrow(from, to, 'rgba(0, 0, 255, 0.6)', userColor);
+        }
+  
+        const scoreDisplay = score !== null ? ` (${score})` : "";
+        return `<div><strong>#${index + 1}</strong>: ${sanMoves.join(" ")}${scoreDisplay}</div>`;
+      });
+  
+      overlay.render();
+      document.getElementById("engine-lines").innerHTML = suggestionsHTML.join("");
+      engineLines = [];
+    }
+  }
+  
+  
+
+  function handleEngineToggle() {
+    const enabled = document.getElementById('engine-toggle').checked;
+  
+    if (enabled) {
+      updateEngineSuggestion(); // Evaluate and draw the arrow
+    } else {
+      overlay.clear();
+      overlay.render();
+    }
+  }
+  

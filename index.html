@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="/chess/css/chessboard-arrows.css">
   <script src="/chess/js/chessboard-arrows.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.15/lib/index.umd.min.js"></script>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.wasm.min.js" integrity="sha512-v+jOjGCpFiYnbhrg34W61aThYSCv4MBkBx5Vo5pAhcJyF+sq7h5Ok5w5qUkZpTT2mQ697f9X2kuqsFZxMzl51Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
   <script type="module" src="/chess/js/tsr.js"></script>
   <script src="/chess/js/trainer-tracking.js"></script>
@@ -36,6 +37,18 @@
     <canvas id="drawing_canvas"  width="392" height="392" ></canvas> -->
     <div id="board"></div>
 </div>
+
+<div id="engine-controls" style="align-items: center; gap: 10px;">
+  <label style="display: inline-flex;">
+    <input type="checkbox" id="engine-toggle" onclick="handleEngineToggle()"> Engine
+  </label>
+  <input type="number" id="engine-depth" min="1" max="30" value="15" style="width: 50px; padding: 2px;">
+  <br>
+  <div id="engine-lines" style="margin-top: 10px; font-size: 14px;"></div>
+</div>
+
+
+
 
   <div class="stats-container" >
     <!-- <p for="stats-prev">Last Move:</p><br> -->

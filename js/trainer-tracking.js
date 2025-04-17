@@ -71,7 +71,7 @@ function getFenKey(fen) {
   
     // Add PGN path (left box)
     if (options.pgn) {
-      lines.push(`<div class="pgn-label small"><strong>PGN:</strong> ${options.pgn}</div>`);
+      lines.push(`<div class="pgn-label small"><strong>Last Move:</strong> ${options.pgn}</div>`);
     }
   
     // Add After: move with move number and color (right box)
@@ -87,7 +87,7 @@ function getFenKey(fen) {
         afterStr = `${moveNum}${color === "white" ? '...' : '.'} ${san}`;
       }
   
-      lines.push(`<div class="pgn-label small"><strong>After:</strong> ${afterStr}</div>`);
+      lines.push(`<div class="pgn-label small"><strong>Current move:</strong> ${afterStr}</div>`);
     }
   
     lines.push(`
