@@ -118,3 +118,14 @@ class TSRTrainer {
   
   window.TSRTrainer = TSRTrainer;
   
+    
+  function updateMasteredLineCount() {
+    if (!tsrTrainer) return;
+  
+    const total = tsrTrainer.lines.length;
+    const mastered = tsrTrainer.lines.filter(line => tsrTrainer.isLineMastered(line)).length;
+    console.log("Mastered lines:", mastered, "of", total);
+    document.getElementById('lines-mastered').textContent = `${mastered}/${total} lines mastered`;
+  }
+
+  window.updateMasteredLineCount = updateMasteredLineCount;

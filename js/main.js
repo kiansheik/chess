@@ -30,7 +30,6 @@ function resetStats() {
   }
   
 
-
 fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._Bxb2-rep.pgn')
       .then(response => response.text())
       .then(data => {
@@ -112,6 +111,7 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
       
         updateStatus();
         populatePGNDropdown();
+        updateMasteredLineCount();
       }
       
 
@@ -297,6 +297,7 @@ function parsePGNLines(pgn) {
   
     //   return 'snapback';
     }
+    updateMasteredLineCount();
   }
   
   
