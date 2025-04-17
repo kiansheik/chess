@@ -5,6 +5,10 @@ class TSRTrainer {
       this.userColor = color;
       this.maxLines = maxLines;
   
+      this.progress = loadProgress(this.pgnId, this.userColor);
+      this.checkpointCache = new Map(); // line -> checkpoint array
+      this.masteredCache = new Map();   // line -> true/false
+  
       this.activeLineIndices = [];
       this.lineQueue = [];
       this.currentLine = null;
@@ -13,8 +17,8 @@ class TSRTrainer {
       this.recalculateQueue();
     }
   
-    loadProgress() {
-      return loadProgress(this.pgnId, this.userColor);
+    refreshProgress() {
+      this.progress = loadProgress(this.pgnId, this.userColor);
     }
   
     initActiveLines() {
@@ -28,19 +32,30 @@ class TSRTrainer {
     }
   
     isLineMastered(line) {
+      if (this.masteredCache.has(line)) {
+        return this.masteredCache.get(line);
+      }
+  
       const checkpoints = this.getCheckpoints(line);
-      const progress = this.loadProgress();
-      return checkpoints.every(key => {
-        const entry = progress[key];
+      const result = checkpoints.every(key => {
+        const entry = this.progress[key];
         if (!entry) return false;
         const total = entry.correct + entry.incorrect;
         return total >= 3 && (entry.correct / total) >= 0.8;
       });
+  
+      this.masteredCache.set(line, result);
+      return result;
     }
   
     getCheckpoints(line) {
+      if (this.checkpointCache.has(line)) {
+        return this.checkpointCache.get(line);
+      }
+  
       const checkpoints = [];
       const game = new Chess();
+  
       for (let i = 0; i < line.length; i++) {
         const fen = getFenKey(game.fen());
         const move = game.move(line[i], { sloppy: true });
@@ -51,22 +66,24 @@ class TSRTrainer {
           checkpoints.push(`${fen}|${line[i]}`);
         }
       }
+  
+      this.checkpointCache.set(line, checkpoints);
       return checkpoints;
     }
   
     recalculateQueue() {
       const now = Date.now();
-      const progress = this.loadProgress();
+      this.refreshProgress(); // Refresh once per recalculation
   
       const candidates = this.activeLineIndices
         .filter(i => !this.isLineMastered(this.lines[i]))
         .map(i => {
           const line = this.lines[i];
           const checkpoints = this.getCheckpoints(line);
-          let total = 0, correct = 0, lastSeen = 0;
   
+          let total = 0, correct = 0, lastSeen = 0;
           for (const key of checkpoints) {
-            const stats = progress[key];
+            const stats = this.progress[key];
             if (stats) {
               const attempts = (stats.correct || 0) + (stats.incorrect || 0);
               total += attempts;
@@ -118,7 +135,7 @@ class TSRTrainer {
     }
   }
   
-  window.TSRTrainer = TSRTrainer;
+  window.TSRTrainer = TSRTrainer;  
   
   
     

@@ -184,5 +184,12 @@ canvas {
 }
 
 #board_wrapper {
-  touch-action: pan-y;
+  position: relative;
+  max-width: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+#board {
+  touch-action: none;
 }
