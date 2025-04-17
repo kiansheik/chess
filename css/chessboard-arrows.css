@@ -1,1 +1,6 @@
 
+/* Override highlight for selected square */
+#board .square-55d63.highlight {
+    background: rgba(255, 255, 0, 0.5) !important;
+  }
+  

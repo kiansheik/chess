@@ -350,6 +350,61 @@ function parsePGNLines(pgn) {
     updateEngineSuggestion();
   }
   
+  let selectedSquare = null;
+
+  function setupHybridTapAndDrag() {
+    const boardEl = document.getElementById('board');
+    
+    // Handle mouse/touch clicks on squares
+    boardEl.addEventListener('mousedown', handleSquareInteraction);
+    boardEl.addEventListener('touchstart', handleSquareInteraction);
+  }
+  
+  function handleSquareInteraction(e) {
+    const squareEl = e.target.closest('.square-55d63');
+    if (!squareEl) return;
+  
+    const square = squareEl.dataset.square;
+    if (!square) return;
+  
+    // First tap: select
+    if (!selectedSquare) {
+      selectedSquare = square;
+      highlightSquare(square);
+      return;
+    }
+  
+    // Second tap: try to make move
+    const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+    if (move) {
+      board.position(game.fen(), true);
+      currentIndex++;
+      updateStatus();
+      updateEngineSuggestion();
+  
+      const turn = game.turn();
+      const expectedColor = userColor === "white" ? "b" : "w";
+      if (turn === expectedColor) {
+        setTimeout(autoPlayOpponentMove, 300);
+      }
+    }
+  
+    selectedSquare = null;
+    removeHighlights();
+  }
+  
+  function highlightSquare(square) {
+    removeHighlights();
+    const el = document.querySelector(`.square-${square}`);
+    if (el) el.style.backgroundColor = '#f8e473';
+  }
+  
+  function removeHighlights() {
+    document.querySelectorAll('.square-55d63').forEach(el => {
+      el.style.backgroundColor = '';
+    });
+  }
+  
   
 
     function onSnapEnd() {
@@ -360,10 +415,13 @@ function parsePGNLines(pgn) {
       draggable: true,
       position: 'start',
       animate: true,
+      showNotation: true,
       onDrop: onDrop,
       onSnapEnd: onSnapEnd,
       showArrows: []
     });
+
+    setupHybridTapAndDrag();
     var overlay = new SimpleArrowOverlay('board_wrapper');
 
     document.addEventListener('touchmove', function (e) {
@@ -465,4 +523,6 @@ function updateEngineSuggestion() {
       overlay.render();
     }
   }
+  
+
   
