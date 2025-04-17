@@ -43,8 +43,9 @@ class TSRTrainer {
         const total = entry.correct + entry.incorrect;
         return total >= 3 && (entry.correct / total) >= 0.8;
       });
-  
-      this.masteredCache.set(line, result);
+      if (result) {
+        this.masteredCache.set(line, result);
+      }
       return result;
     }
   
