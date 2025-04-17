@@ -115,19 +115,25 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
         updateMasteredLineCount();
       }
       
-
       function updateStatus(msg) {
-        const statusText = msg || `Move ${currentIndex + 1} of ${currentTrainingLine.length}`;
+        if (!Array.isArray(currentTrainingLine)) {
+          document.getElementById('status').textContent = msg || "🎉 All lines mastered!";
+          document.getElementById('stats-box').innerHTML = "";
+          return;
+        }
+      
+        const totalMoves = currentTrainingLine.length;
+        const statusText = msg || `Move ${currentIndex + 1} of ${totalMoves}`;
         document.getElementById('status').textContent = statusText;
       
         // Update PGN up to and including last user move (for the left box)
         const movesUpToNow = currentTrainingLine.slice(0, currentIndex);
         const pgnGame = new Chess();
         movesUpToNow.forEach(m => pgnGame.move(m));
-        currentPgnSoFar = pgnGame.pgn(); // Used for logging purposes
+        currentPgnSoFar = pgnGame.pgn(); // Used for logging
       
-        // Only update stats box if there’s a move left for the user
-        if (currentIndex < currentTrainingLine.length) {
+        // If there’s a move left for the user to make, update stats box
+        if (currentIndex < totalMoves) {
           const fen = game.fen();
           const expectedMove = currentTrainingLine[currentIndex];
           const key = getQuestionKey(fen, expectedMove);
@@ -143,6 +149,7 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
       
         moveStartTime = Date.now();
       }
+      
       
 
 function getAllPGNLines(parsedGames) {

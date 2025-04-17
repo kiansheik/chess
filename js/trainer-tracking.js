@@ -24,31 +24,37 @@ function getFenKey(fen) {
     localStorage.setItem(key, JSON.stringify(progress));
   }
   
-  function recordAttempt(fen, correct, timeTaken, pgnSoFar, pgnId, color, expectedMove) {
+function recordAttempt(fen, correct, timeTaken, pgnSoFar, pgnId, color, expectedMove) {
     const progress = loadProgress(pgnId, color);
     const key = getQuestionKey(fen, expectedMove);
     const now = Date.now(); // numeric timestamp instead of ISO string
-  
+
     if (!progress[key]) {
-      progress[key] = {
-        pgnUpToHere: pgnSoFar,
-        correct: 0,
-        incorrect: 0,
-        averageTime: 0,
-        lastSeen: now
-      };
+        progress[key] = {
+            pgnUpToHere: pgnSoFar,
+            correct: 0,
+            incorrect: 0,
+            averageTime: 0,
+            lastSeen: now,
+            lastCorrect: null,
+            lastIncorrect: null
+        };
     }
-  
+
     const entry = progress[key];
-    if (correct) entry.correct++;
-    else entry.incorrect++;
-  
+    if (correct) {
+        entry.correct++;
+        entry.lastCorrect = now; // record last correct time
+    } else {
+        entry.incorrect++;
+        entry.lastIncorrect = now; // record last incorrect time
+    }
+
     const total = entry.correct + entry.incorrect;
     entry.averageTime = ((entry.averageTime * (total - 1)) + timeTaken) / total;
     entry.lastSeen = now; // update with numeric timestamp
-  
     saveProgress(pgnId, color, progress);
-  }
+}
   
   function getStatsByKey(key, pgnId, color) {
     const progress = loadProgress(pgnId, color);

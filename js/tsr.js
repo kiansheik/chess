@@ -23,6 +23,7 @@ class TSRTrainer {
   
     initActiveLines() {
       let count = 0;
+      this.activeLineIndices = [];
       for (let i = 0; i < this.lines.length && count < this.maxLines; i++) {
         if (!this.isLineMastered(this.lines[i])) {
           this.activeLineIndices.push(i);
@@ -73,6 +74,7 @@ class TSRTrainer {
     }
   
     recalculateQueue() {
+      this.initActiveLines();
       const now = Date.now();
       this.refreshProgress(); // Refresh once per recalculation
   
@@ -119,18 +121,18 @@ class TSRTrainer {
       }
     }
   
-    addNextUnseenLine() {
-      const nextIndex = this.activeLineIndices.length;
-      if (nextIndex < this.lines.length && !this.isLineMastered(this.lines[nextIndex])) {
-        this.activeLineIndices.push(nextIndex);
-      }
-    }
+    // addNextUnseenLine() {
+    //   const nextIndex = this.activeLineIndices.length;
+    //   if (nextIndex < this.lines.length && !this.isLineMastered(this.lines[nextIndex])) {
+    //     this.activeLineIndices.push(nextIndex);
+    //   }
+    // }
   
     markCurrentLineMastered() {
       const currentIndex = this.lines.indexOf(this.currentLine);
       if (currentIndex >= 0 && this.isLineMastered(this.currentLine)) {
         this.currentLine = null;
-        this.addNextUnseenLine();
+        // this.addNextUnseenLine();
         this.recalculateQueue();
       }
     }
