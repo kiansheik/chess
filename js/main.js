@@ -1,3 +1,8 @@
+const tc = {
+    "w": "white",
+    "b": "black"
+}
+
 function resetStats() {
     if (!pgnId || !userColor) {
       alert("Start training first to reset stats.");
@@ -19,9 +24,16 @@ function resetStats() {
     expectedCorrection = null;
   
     game.reset();
-    board.position(game.fen());
-    overlay.clear();
-    overlay.render();
+    ground.set({
+        fen: game.fen(),    
+        turnColor: tc[game.turn()],
+        // movable: {
+        //   ...ground.state.movable,
+        //   color: tc[game.turn()]
+        // }
+      });
+      
+    clearArrows();
   
     // Clear UI
     document.getElementById('stats-box').innerHTML = "";
@@ -52,6 +64,7 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
     let awaitingCorrection = false;
     let correctionArrow = null;
     let expectedCorrection = null;
+    let ground = null;
     
 
     function startTrainer() {
@@ -103,8 +116,15 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
       
         currentIndex = 0;
         game.reset();
-        board.orientation(userColor);
-        board.position(game.fen());
+        ground.set({
+            orientation: userColor,
+            fen: game.fen(),    
+            turnColor: tc[game.turn()],
+            // movable: {
+            //   ...ground.state.movable,
+            //   color: tc[game.turn()]
+            // }
+          });          
       
         if (userColor === "black") {
           autoPlayOpponentMove();
@@ -150,6 +170,27 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
         moveStartTime = Date.now();
       }
       
+      
+
+function snapback(lastGoodFen) {
+        if (!lastGoodFen) {
+          console.warn("No last good position saved.");
+          return;
+        }
+      
+        // Reset the internal game state
+        game.load(lastGoodFen);
+      
+        // Update the Chessground board
+        ground.set({
+          fen: lastGoodFen,
+          turnColor: tc[game.turn()],
+          movable: {
+            ...ground.state.movable,
+            color: tc[game.turn()]
+          }
+        });
+      }
       
 
 function getAllPGNLines(parsedGames) {
@@ -202,6 +243,7 @@ function getAllPGNLines(parsedGames) {
   }
   
 
+
 function parsePGNLines(pgn) {
     const game = new Chess();
     if (!game.load_pgn(pgn)) return [];
@@ -209,12 +251,51 @@ function parsePGNLines(pgn) {
     const lines = getAllPGNLines(parsed);
     return lines;
   }
-
+  function clearArrows() {
+    ground.set({
+      drawable: {
+        ...ground.state.drawable,
+        autoShapes: []
+      }
+    });
+  }
+  
+  function drawArrows({ source, target, correctMove }) {
+    const shapes = [];
+  
+    // Red arrow for the move the user tried
+    shapes.push({
+      orig: source,
+      dest: target,
+      brush: 'red'
+    });
+  
+    // Green arrow for the correct move
+    if (correctMove) {
+      shapes.push({
+        orig: correctMove.from,
+        dest: correctMove.to,
+        brush: 'green'
+      });
+    }
+  
+    ground.set({
+      orientation: userColor,
+      drawable: {
+        ...ground.state.drawable,
+        autoShapes: shapes
+      }
+    });
+  }
+  
     
   function onDrop(source, target) {
-    if (!tsrTrainer || !currentTrainingLine) return 'snapback';
-  
     const fenBeforeMove = game.fen();
+    console.log("Dropped from", source, "to", target);
+    if (!tsrTrainer || !currentTrainingLine) { 
+        snapback(fenBeforeMove); return 'snapback';
+    }
+  
     const expectedMove = currentTrainingLine[currentIndex];
   
     // Handle correction mode
@@ -223,14 +304,13 @@ function parsePGNLines(pgn) {
   
       if (!move || move.san !== expectedCorrection) {
         game.undo();
-        return 'snapback';
+        snapback(fenBeforeMove); return 'snapback';
       }
   
       // Corrected successfully
       awaitingCorrection = false;
       expectedCorrection = null;
-      overlay.clear();
-      overlay.render();
+      clearArrows()
   
       // No stats update here — correction doesn't count
       tsrTrainer.resetLineProgress(); // penalize the current line
@@ -241,7 +321,9 @@ function parsePGNLines(pgn) {
   
     const questionKey = getQuestionKey(fenBeforeMove, expectedMove);
     const move = game.move({ from: source, to: target, promotion: 'q' });
-    if (move === null) return 'snapback';
+    if (move === null) {
+        snapback(fenBeforeMove); return 'snapback';
+    }
   
     const timeTaken = (Date.now() - moveStartTime) / 1000;
     const correct = (move.san === expectedMove);
@@ -263,8 +345,7 @@ function parsePGNLines(pgn) {
         pgn: fullPgnSoFar
       });
   
-      overlay.clear();
-      overlay.render();
+      clearArrows()
   
       currentIndex++;
       updateStatus();
@@ -275,8 +356,8 @@ function parsePGNLines(pgn) {
         resetBoardAndLine();
       }
   
-      const turn = game.turn();
-      const expectedColor = userColor === "white" ? "b" : "w";
+      const turn = tc[game.turn()];
+      const expectedColor = userColor === "white" ? "black" : "white";
       if (turn === expectedColor) {
         setTimeout(autoPlayOpponentMove, 300);
       }
@@ -294,16 +375,17 @@ function parsePGNLines(pgn) {
       const legalMoves = temp.moves({ verbose: true });
       const correctMove = legalMoves.find(m => m.san === expectedMove);
   
-      overlay.clear();
-      overlay.addArrow(source, target, "red", userColor);
-      if (correctMove) {
-        overlay.addArrow(correctMove.from, correctMove.to, "green", userColor);
-      }
-      overlay.render();
+      clearArrows()
+      drawArrows({
+        source: source,
+        target: target,
+        correctMove: correctMove
+      });
+      
   
       updateStatus(`❌ Incorrect. Try again: ${expectedMove}`);
   
-    //   return 'snapback';
+      snapback(fenBeforeMove); return 'snapback';
     }
     updateMasteredLineCount();
   }
@@ -313,7 +395,14 @@ function parsePGNLines(pgn) {
   function resetBoardAndLine() {
     game.reset();
     currentIndex = 0;
-    board.position(game.fen());
+    ground.set({
+        fen: game.fen(),    
+        turnColor: tc[game.turn()],
+        // movable: {
+        //   ...ground.state.movable,
+        //   color: tc[game.turn()]
+        // }
+      });
   
     if (userColor === "black") {
       autoPlayOpponentMove();
@@ -331,7 +420,7 @@ function parsePGNLines(pgn) {
       resetBoardAndLine();
       return;
     }
-  
+    console.log("Opponent's turn");
     const moveSan = currentTrainingLine[currentIndex];
     const move = game.move(moveSan, { sloppy: true });
     if (!move) {
@@ -340,14 +429,13 @@ function parsePGNLines(pgn) {
     }
   
     const newFen = game.fen();
-    if (board.fen !== newFen) {
-      if (board.move) {
-        board.move(`${move.from}-${move.to}`);
-      } else {
-        board.position(newFen);
-      }
-      board.fen = newFen;
-    }
+    ground.set({
+      fen: newFen,    turnColor: tc[game.turn()],
+    //   movable: {
+    //     ...ground.state.movable,
+    //     color: tc[game.turn()]
+    //   }
+    });
   
     currentIndex++;
   
@@ -373,77 +461,76 @@ function parsePGNLines(pgn) {
   
   let selectedSquare = null;
 
-  function setupHybridTapAndDrag() {
-    const boardEl = document.getElementById('board');
+//   function setupHybridTapAndDrag() {
+//     const boardEl = document.getElementById('board');
     
-    // Handle mouse/touch clicks on squares
-    boardEl.addEventListener('mousedown', handleSquareInteraction);
-    boardEl.addEventListener('touchstart', handleSquareInteraction);
-  }
+//     // Handle mouse/touch clicks on squares
+//     boardEl.addEventListener('mousedown', handleSquareInteraction);
+//     boardEl.addEventListener('touchstart', handleSquareInteraction);
+//   }
   
-  function handleSquareInteraction(e) {
-    const squareEl = e.target.closest('.square-55d63');
-    if (!squareEl) return;
+//   function handleSquareInteraction(e) {
+//     const squareEl = e.target.closest('.square-55d63');
+//     if (!squareEl) return;
   
-    const square = squareEl.dataset.square;
-    if (!square) return;
+//     const square = squareEl.dataset.square;
+//     if (!square) return;
   
-    // First tap: select
-    if (!selectedSquare) {
-      selectedSquare = square;
-      highlightSquare(square);
-      return;
-    }
+//     // First tap: select
+//     if (!selectedSquare) {
+//       selectedSquare = square;
+//       highlightSquare(square);
+//       return;
+//     }
   
-    // Second tap: try to make move
-    const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
-    if (move) {
-      board.position(game.fen(), true);
-      currentIndex++;
-      updateStatus();
-      updateEngineSuggestion();
+//     // Second tap: try to make move
+//     const move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+//     if (move) {
+//         ground.set({
+//             fen: game.fen(),
+//             turnColor: tc[game.turn()]
+//           });
+//       currentIndex++;
+//       updateStatus();
+//       updateEngineSuggestion();
   
-      const turn = game.turn();
-      const expectedColor = userColor === "white" ? "b" : "w";
-      if (turn === expectedColor) {
-        setTimeout(autoPlayOpponentMove, 300);
-      }
-    }
+//       const turn = tc[game.turn()];
+//       const expectedColor = userColor === "white" ? "b" : "w";
+//       if (turn === expectedColor) {
+//         setTimeout(autoPlayOpponentMove, 300);
+//       }
+//     }
   
-    selectedSquare = null;
-    removeHighlights();
-  }
+//     selectedSquare = null;
+//     removeHighlights();
+//   }
   
-  function highlightSquare(square) {
-    removeHighlights();
-    const el = document.querySelector(`.square-${square}`);
-    if (el) el.style.backgroundColor = '#f8e473';
-  }
+//   function highlightSquare(square) {
+//     removeHighlights();
+//     const el = document.querySelector(`.square-${square}`);
+//     if (el) el.style.backgroundColor = '#f8e473';
+//   }
   
-  function removeHighlights() {
-    document.querySelectorAll('.square-55d63').forEach(el => {
-      el.style.backgroundColor = '';
-    });
-  }
+//   function removeHighlights() {
+//     document.querySelectorAll('.square-55d63').forEach(el => {
+//       el.style.backgroundColor = '';
+//     });
+//   }
   
   
 
     function onSnapEnd() {
-      board.position(game.fen());
-    }
+      ground.set({
+        fen: game.fen(),    turnColor: tc[game.turn()],
+        // movable: {
+        //   ...ground.state.movable,
+        //   color: tc[game.turn()]
+        // }
+      });
+    }    
 
-    board = Chessboard('board', {
-      draggable: true,
-      position: 'start',
-      animate: true,
-      showNotation: true,
-      onDrop: onDrop,
-      onSnapEnd: onSnapEnd,
-      showArrows: []
-    });
-
-    setupHybridTapAndDrag();
-    var overlay = new SimpleArrowOverlay('board_wrapper');
+    // setupHybridTapAndDrag();
+    // var overlay = new SimpleArrowOverlay('board_wrapper');
 
     document.addEventListener('touchmove', function (e) {
         if (!e.target.closest('#board')) return;
@@ -454,6 +541,45 @@ function parsePGNLines(pgn) {
       
 // When the page is ready for it, run populatePGNDropdown()
     document.addEventListener('DOMContentLoaded', function() {
+        ground = Chessground.Chessground(document.getElementById('board'), {
+            orientation: userColor,
+            draggable: {
+              enabled: true,
+              showGhost: true
+            },
+            movable: {
+              free: true, // set to false if you want to restrict to legal moves
+              color: userColor,
+              showDests: true,
+              events: {
+                after: (orig, dest, metadata) => {
+                //   console.log('Dropped from', orig, 'to', dest);
+                //   game.move({ from: orig, to: dest, promotion: 'q' });
+                //   ground.set({ fen: game.fen() });
+                  onDrop(orig, dest);
+                }
+              }
+            },
+            // dropmode: {
+            //     active: true,
+            //   },
+            // highlight: {
+            //   lastMove: true,
+            //   check: true
+            // },
+            animation: {
+              enabled: true,
+              duration: 300
+            },
+            // events: {
+            //     move: (orig, dest, metadata) => {
+            //         // console.log('Dropped from', orig, 'to', dest);
+            //       //   game.move({ from: orig, to: dest, promotion: 'q' });
+            //       //   ground.set({ fen: game.fen() });
+            //         onDrop(orig, dest);
+            //       }
+            // }
+          });  
         populatePGNDropdown();
       });
 
@@ -500,7 +626,7 @@ function updateEngineSuggestion() {
     }
   
     if (line.startsWith("bestmove")) {
-      overlay.clear();
+        clearArrows();
   
       const suggestionsHTML = engineLines.slice(0, 3).map((entry, index) => {
         if (!entry) return "";
@@ -519,14 +645,14 @@ function updateEngineSuggestion() {
         if (index === 0 && uciMoves[0]) {
           const from = uciMoves[0].slice(0, 2);
           const to = uciMoves[0].slice(2, 4);
-          overlay.addArrow(from, to, 'rgba(0, 0, 255, 0.6)', userColor);
+        //   overlay.addArrow(from, to, 'rgba(0, 0, 255, 0.6)', userColor);
         }
   
         const scoreDisplay = score !== null ? ` (${score})` : "";
         return `<div><strong>#${index + 1}</strong>: ${sanMoves.join(" ")}${scoreDisplay}</div>`;
       });
   
-      overlay.render();
+    //   overlay.render();
       document.getElementById("engine-lines").innerHTML = suggestionsHTML.join("");
       engineLines = [];
     }
@@ -540,8 +666,7 @@ function updateEngineSuggestion() {
     if (enabled) {
       updateEngineSuggestion(); // Evaluate and draw the arrow
     } else {
-      overlay.clear();
-      overlay.render();
+    clearArrows();
     }
   }
   

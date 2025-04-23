@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Minimal Chessground</title>
+  <link href="/chess/css/chessground.base.css" rel="stylesheet">
+<link href="/chess/css/chessground.brown.css" rel="stylesheet"> 
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #board {
+      width: 400px;
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <div id="board"></div>
+
+  <script src="/chess/js/chessground.global.js"></script>
+  <script>
+    const board = Chessground.Chessground(document.getElementById('board'), {
+      orientation: 'white',
+      movable: {
+        color: 'white',
+        free: true,
+        events: {
+          after: (from, to) => {
+            console.log(`Moved from ${from} to ${to}`);
+          }
+        }
+      },
+      highlight: {
+        lastMove: true,
+        check: true
+      },
+      animation: {
+        enabled: true
+      }
+    });
+  </script>
+</body>
+</html>

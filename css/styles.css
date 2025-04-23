@@ -185,11 +185,11 @@ canvas {
 
 #board_wrapper {
   position: relative;
-  max-width: 100%;
+  max-width: 80%;
   overflow: hidden;
   touch-action: none;
 }
 
-#board {
+/* #board {
   touch-action: none;
-}
+} */

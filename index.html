@@ -6,10 +6,13 @@
   <title>PGN Trainer</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
-  <link rel="stylesheet" href="/chess/css/chessboard-arrows.css">
-  <script src="/chess/js/chessboard-arrows.js"></script>
+<!-- ✅ Correct Chessground build -->
+<script src="/chess/js/chessground.global.js"></script>
+<link href="/chess/css/chessground.base.css" rel="stylesheet"> 
+<link href="/chess/css/chessground.brown.css" rel="stylesheet"> 
+<link href="/chess/css/chessground.cburnett.css" rel="stylesheet"> 
+  <!-- <link rel="stylesheet" href="/chess/css/chessboard-arrows.css"> -->
+  <!-- <script src="/chess/js/chessboard-arrows.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/@mliebelt/pgn-parser@1.4.15/lib/index.umd.min.js"></script>
   <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.wasm.min.js" integrity="sha512-v+jOjGCpFiYnbhrg34W61aThYSCv4MBkBx5Vo5pAhcJyF+sq7h5Ok5w5qUkZpTT2mQ697f9X2kuqsFZxMzl51Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
 
@@ -35,7 +38,7 @@
   <div id="board_wrapper">
     <!-- <canvas id="primary_canvas" width="392" height="392" ></canvas>
     <canvas id="drawing_canvas"  width="392" height="392" ></canvas> -->
-    <div id="board"></div>
+    <div id="board" class="cg-board"></div>
 </div>
 
 <div id="engine-controls" style="align-items: center; gap: 10px;">
