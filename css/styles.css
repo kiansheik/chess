@@ -185,10 +185,19 @@ canvas {
 
 #board_wrapper {
   position: relative;
-  max-width: 80%;
+  width: 100%;
+  max-width: 100%;
   overflow: hidden;
   touch-action: none;
 }
+
+/* Apply 80% max width only on landscape / wider screens */
+@media (min-aspect-ratio: 4/3) {
+  #board_wrapper {
+    max-width: 80%;
+  }
+}
+
 
 /* #board {
   touch-action: none;
