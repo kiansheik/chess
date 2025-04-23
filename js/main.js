@@ -325,37 +325,51 @@ function parsePGNLines(pgn) {
     
 
   function autoPlayOpponentMove() {
-    if (!currentTrainingLine || currentIndex >= currentTrainingLine.length) return;
+    if (!currentTrainingLine || currentIndex >= currentTrainingLine.length) {
+      tsrTrainer.markCurrentLineMastered?.();
+      currentTrainingLine = tsrTrainer.getNextLine();
+      resetBoardAndLine();
+      return;
+    }
   
     const moveSan = currentTrainingLine[currentIndex];
     const move = game.move(moveSan, { sloppy: true });
-    if (!move) return; // safety check
+    if (!move) {
+      console.warn("Engine could not apply move:", moveSan);
+      return;
+    }
   
     const newFen = game.fen();
     if (board.fen !== newFen) {
-      // If your library supports board.move(), use this instead for animation:
       if (board.move) {
         board.move(`${move.from}-${move.to}`);
       } else {
-        board.position(newFen); // fallback
+        board.position(newFen);
       }
-      board.fen = newFen; // store it for next comparison
+      board.fen = newFen;
     }
   
     currentIndex++;
   
-    // Update stats box
-    if (currentIndex < currentTrainingLine.length) {
-      const nextMove = currentTrainingLine[currentIndex];
-      const key = getQuestionKey(game.fen(), nextMove);
-      const stats = getStatsByKey(key, pgnId, userColor);
-      document.getElementById('stats-box').innerHTML = formatStats(stats, {
-        lastMove: { color: userColor, san: moveSan }
-      });
+    if (currentIndex >= currentTrainingLine.length) {
+      // 🎉 Line ends on opponent’s move
+      tsrTrainer.markCurrentLineMastered?.();
+      currentTrainingLine = tsrTrainer.getNextLine();
+      resetBoardAndLine();
+      return;
     }
+  
+    const nextMove = currentTrainingLine[currentIndex];
+    const key = getQuestionKey(game.fen(), nextMove);
+    const stats = getStatsByKey(key, pgnId, userColor);
+  
+    document.getElementById('stats-box').innerHTML = formatStats(stats, {
+      lastMove: { color: userColor, san: moveSan }
+    });
   
     updateEngineSuggestion();
   }
+  
   
   let selectedSquare = null;
 
