@@ -76,32 +76,32 @@ class TSRTrainer {
     recalculateQueue() {
       this.initActiveLines();
       const now = Date.now();
-      this.refreshProgress(); // Refresh once per recalculation
-  
-      const candidates = this.activeLineIndices
-        .filter(i => !this.isLineMastered(this.lines[i]))
-        .map(i => {
-          const line = this.lines[i];
-          const checkpoints = this.getCheckpoints(line);
-  
-          let total = 0, correct = 0, lastSeen = 0;
-          for (const key of checkpoints) {
-            const stats = this.progress[key];
-            if (stats) {
-              const attempts = (stats.correct || 0) + (stats.incorrect || 0);
-              total += attempts;
-              correct += stats.correct || 0;
-              lastSeen = Math.max(lastSeen, new Date(stats.lastSeen || 0).getTime());
-            }
+      this.refreshProgress();
+    
+      const allLines = this.lines;
+      const unmastered = allLines.filter(line => !this.isLineMastered(line));
+    
+      const candidates = (unmastered.length > 0 ? unmastered : allLines).map(line => {
+        const checkpoints = this.getCheckpoints(line);
+    
+        let total = 0, correct = 0, lastSeen = 0;
+        for (const key of checkpoints) {
+          const stats = this.progress[key];
+          if (stats) {
+            const attempts = (stats.correct || 0) + (stats.incorrect || 0);
+            total += attempts;
+            correct += stats.correct || 0;
+            lastSeen = Math.max(lastSeen, new Date(stats.lastSeen || 0).getTime());
           }
-  
-          const accuracy = total ? correct / total : 0;
-          const recencyScore = lastSeen ? now - lastSeen : Infinity;
-          const score = recencyScore * 0.7 + (1 - accuracy) * 0.3;
-  
-          return { line, score };
-        });
-  
+        }
+    
+        const accuracy = total ? correct / total : 0;
+        const recencyScore = lastSeen ? now - lastSeen : Infinity;
+        const score = recencyScore * 0.8 + (1 - accuracy) * 0.2;
+    
+        return { line, score };
+      });
+    
       candidates.sort((a, b) => b.score - a.score);
       this.lineQueue = candidates.map(c => c.line);
     }
@@ -121,27 +121,15 @@ class TSRTrainer {
       }
     }
   
-    // addNextUnseenLine() {
-    //   const nextIndex = this.activeLineIndices.length;
-    //   if (nextIndex < this.lines.length && !this.isLineMastered(this.lines[nextIndex])) {
-    //     this.activeLineIndices.push(nextIndex);
-    //   }
-    // }
-  
     markCurrentLineMastered() {
       const currentIndex = this.lines.indexOf(this.currentLine);
       if (currentIndex >= 0 && this.isLineMastered(this.currentLine)) {
         this.currentLine = null;
-        // this.addNextUnseenLine();
         this.recalculateQueue();
       }
     }
   }
-  
   window.TSRTrainer = TSRTrainer;  
-  
-  
-    
   function updateMasteredLineCount() {
     if (!tsrTrainer) return;
   
