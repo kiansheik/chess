@@ -74,37 +74,53 @@ class TSRTrainer {
     }
   
     recalculateQueue() {
-      this.initActiveLines();
-      const now = Date.now();
-      this.refreshProgress();
-    
-      const allLines = this.lines;
-      const unmastered = allLines.filter(line => !this.isLineMastered(line));
-    
-      const candidates = (unmastered.length > 0 ? unmastered : allLines).map(line => {
-        const checkpoints = this.getCheckpoints(line);
-    
-        let total = 0, correct = 0, lastSeen = 0;
-        for (const key of checkpoints) {
-          const stats = this.progress[key];
-          if (stats) {
-            const attempts = (stats.correct || 0) + (stats.incorrect || 0);
-            total += attempts;
-            correct += stats.correct || 0;
-            lastSeen = Math.max(lastSeen, new Date(stats.lastSeen || 0).getTime());
+        this.initActiveLines();
+        const now = Date.now();
+        this.refreshProgress();
+      
+        const allLines = this.lines;
+        const unmastered = allLines.filter(line => !this.isLineMastered(line));
+        const pool = unmastered.length > 0 ? unmastered : allLines;
+      
+        const raw = pool.map(line => {
+          const checkpoints = this.getCheckpoints(line);
+      
+          let total = 0, correct = 0, lastSeen = 0;
+          for (const key of checkpoints) {
+            const stats = this.progress[key];
+            if (stats) {
+              const attempts = (stats.correct || 0) + (stats.incorrect || 0);
+              total += attempts;
+              correct += stats.correct || 0;
+              lastSeen = Math.max(lastSeen, new Date(stats.lastSeen || 0).getTime());
+            }
           }
-        }
-    
-        const accuracy = total ? correct / total : 0;
-        const recencyScore = lastSeen ? now - lastSeen : Infinity;
-        const score = recencyScore * 0.8 + (1 - accuracy) * 0.2;
-    
-        return { line, score };
-      });
-    
-      candidates.sort((a, b) => b.score - a.score);
-      this.lineQueue = candidates.map(c => c.line);
-    }
+      
+          const accuracy = total ? correct / total : 0;
+          const recencyScore = lastSeen ? now - lastSeen : Infinity;
+      
+          return { line, accuracy, recencyScore };
+        });
+      
+        // Normalize both values between 0 and 1
+        const recMin = Math.min(...raw.map(e => e.recencyScore));
+        const recMax = Math.max(...raw.map(e => e.recencyScore));
+        const accMin = Math.min(...raw.map(e => e.accuracy));
+        const accMax = Math.max(...raw.map(e => e.accuracy));
+      
+        const normalize = (val, min, max) => max === min ? 0 : (val - min) / (max - min);
+      
+        const scored = raw.map(({ line, accuracy, recencyScore }) => {
+          const normRecency = normalize(recencyScore, recMin, recMax);
+          const normAccuracy = normalize(accuracy, accMin, accMax);
+          const score = normRecency * 0.8 + (1 - normAccuracy) * 0.2;
+          return { line, score };
+        });
+      
+        scored.sort((a, b) => b.score - a.score);
+        this.lineQueue = scored.map(e => e.line);
+      }
+      
   
     getNextLine() {
       if (!this.lineQueue.length) this.recalculateQueue();
