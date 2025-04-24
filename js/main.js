@@ -27,10 +27,10 @@ function resetStats() {
     ground.set({
         fen: game.fen(),    
         turnColor: tc[game.turn()],
-        // movable: {
-        //   ...ground.state.movable,
-        //   color: tc[game.turn()]
-        // }
+        movable: {
+          ...ground.state.movable,
+          color: tc[game.turn()]
+        }
       });
       
     clearArrows();
@@ -120,10 +120,10 @@ fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._
             orientation: userColor,
             fen: game.fen(),    
             turnColor: tc[game.turn()],
-            // movable: {
-            //   ...ground.state.movable,
-            //   color: tc[game.turn()]
-            // }
+            movable: {
+              ...ground.state.movable,
+              color: tc[game.turn()]
+            }
           });          
       
         if (userColor === "black") {
@@ -398,10 +398,10 @@ function parsePGNLines(pgn) {
     ground.set({
         fen: game.fen(),    
         turnColor: tc[game.turn()],
-        // movable: {
-        //   ...ground.state.movable,
-        //   color: tc[game.turn()]
-        // }
+        movable: {
+          ...ground.state.movable,
+          color: tc[game.turn()]
+        }
       });
   
     if (userColor === "black") {
@@ -431,10 +431,10 @@ function parsePGNLines(pgn) {
     const newFen = game.fen();
     ground.set({
       fen: newFen,    turnColor: tc[game.turn()],
-    //   movable: {
-    //     ...ground.state.movable,
-    //     color: tc[game.turn()]
-    //   }
+      movable: {
+        ...ground.state.movable,
+        color: tc[game.turn()]
+      }
     });
   
     currentIndex++;
@@ -522,10 +522,10 @@ function parsePGNLines(pgn) {
     function onSnapEnd() {
       ground.set({
         fen: game.fen(),    turnColor: tc[game.turn()],
-        // movable: {
-        //   ...ground.state.movable,
-        //   color: tc[game.turn()]
-        // }
+        movable: {
+          ...ground.state.movable,
+          color: tc[game.turn()]
+        }
       });
     }    
 
