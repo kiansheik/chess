@@ -51,7 +51,7 @@ ENGINE_PATH = "./stockfish"  # Replace this
 ENGINE_CACHE_FILE = "stockfish_cache.json"
 ENGINE_TTL_MONTHS = 6
 MIN_GAMES = 100000
-BEGINING_MOVES = """1. b4"""
+BEGINING_MOVES = """1. e4 c5 2. Nf3"""
 COVERAGE_RATE = 0.75
 
 engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)

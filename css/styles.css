@@ -125,7 +125,7 @@ label {
 
 /* Stats section */
 .stats-container {
-  display: flex;
+  display: -webkit-inline-box;
   flex-direction: column;
   gap: 10px;
   margin-top: 10px;
