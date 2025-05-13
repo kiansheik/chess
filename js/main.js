@@ -42,14 +42,14 @@ function resetStats() {
   }
   
 
-fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._Bxb2-rep.pgn')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('pgn-input').value = data;
-      })
-      .catch(error => {
-        console.error("Couldn't load PGN file:", error);
-      });
+// fetch('/chess/pgn/white_0.55_1000-1._e4_e5_2._d4_exd4_3._c3_dxc3_4._Bc4_cxb2_5._Bxb2-rep.pgn')
+//       .then(response => response.text())
+//       .then(data => {
+//         document.getElementById('pgn-input').value = data;
+//       })
+//       .catch(error => {
+//         console.error("Couldn't load PGN file:", error);
+//       });
 
     let board = null;
     let game = new Chess();

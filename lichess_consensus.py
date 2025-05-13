@@ -12,6 +12,14 @@ import matplotlib.pyplot as plt
 import io
 import textwrap
 
+ENGINE_PATH = "./stockfish"  # Replace this
+ENGINE_CACHE_FILE = "stockfish_cache.json"
+ENGINE_TTL_MONTHS = 6
+MIN_GAMES = 10_000
+MAX_VARIATIONS = 0
+BEGINING_MOVES = """1. b4"""
+COVERAGE_RATE = 0.75
+
 
 def generate_pgn_from_node(node, new_move=None):
     nodes = []
@@ -47,12 +55,6 @@ TTL_MONTHS = 6
 
 # viewer = MatplotlibChessBoard()
 
-ENGINE_PATH = "./stockfish"  # Replace this
-ENGINE_CACHE_FILE = "stockfish_cache.json"
-ENGINE_TTL_MONTHS = 6
-MIN_GAMES = 100000
-BEGINING_MOVES = """1. e4 c5 2. Nf3"""
-COVERAGE_RATE = 0.75
 
 engine = chess.engine.SimpleEngine.popen_uci(ENGINE_PATH)
 # Load cache
@@ -68,20 +70,67 @@ def is_engine_cache_valid(entry):
     return True  # datetime.now() - timestamp < timedelta(days=ENGINE_TTL_MONTHS * 30)
 
 
-def best_engine_move(game_node):
+def best_engine_move(game_node, depth=30):
+    board = game_node.board()
+    fen = board.fen()
+
+    # Check cache
+    if fen in engine_cache and is_engine_cache_valid(engine_cache[fen]):
+        print(f"✅ Engine cache hit for FEN: {fen}")
+        cached = engine_cache[fen]
+        move = cached["move"]
+        san = cached["san"]
+        return move, san, cached["score"]
+
+    # Run Stockfish
+    print(f"🧠 Evaluating FEN with Stockfish: {fen}")
+
+    result = engine.analyse(board, chess.engine.Limit(depth=depth))
+    best_move = result["pv"][0]
+    score = result["score"].white().score(mate_score=100000)
+
+    san = board.san(best_move)
+    uci = best_move.uci()
+
+    # Cache it
+    engine_cache[fen] = {
+        "timestamp": datetime.now().isoformat(),
+        "move": uci,
+        "score": score,
+        "san": san,
+    }
+    with open(ENGINE_CACHE_FILE, "w") as f:
+        json.dump(engine_cache, f, indent=2)
+
+    # viewer.update(game_node, move=best_move)  # Show the board with the best move highlighted
+
+    return uci, san, score
+
+
+def best_move(game_node):
     result = query_lichess_position(game_node)
     moves = result["moves"]
 
     if not moves:
-        raise Exception("No moves available from Lichess Explorer for this position.")
+        return best_engine_move(game_node)
 
     # Determine the color to move
     board = game_node.board()
     is_white_turn = board.turn == chess.WHITE
 
+    # Filter moves to only include those with at least 1000 wins for the current turn
+    top_moves = [
+        move
+        for move in moves
+        if (move["white"] if is_white_turn else move["black"]) >= 1000
+    ]
+
+    if not top_moves or len(top_moves) == 1:
+        return best_engine_move(game_node)
+
     # Find the move with the highest win rate for the current color
     best_move = max(
-        moves,
+        top_moves,
         key=lambda m: m["white"] / (m["white"] + m["draws"] + m["black"])
         if is_white_turn
         else m["black"] / (m["white"] + m["draws"] + m["black"]),
@@ -210,8 +259,8 @@ for move in result["moves"]:
 print("Testing recurse")
 
 
-def get_top_75_percent_moves(moves, total_games):
-    if total_games < MIN_GAMES:
+def get_top_75_percent_moves(moves, total_games=None, min_games=None):
+    if min_games is not None and total_games < min_games:
         return []
     sorted_moves = sorted(
         moves, key=lambda m: m["white"] + m["draws"] + m["black"], reverse=True
@@ -225,21 +274,19 @@ def get_top_75_percent_moves(moves, total_games):
         coverage += count
         if coverage / total_games >= COVERAGE_RATE:
             break
-    return selected
+    return selected[:MAX_VARIATIONS] if MAX_VARIATIONS else selected
 
 
 def build_repertoire(game_node, depth=0):
     useStockfish = bool(depth % 2)  # Every other level
-    result = (
-        best_engine_move(game_node)
-        if useStockfish
-        else query_lichess_position(game_node)
-    )
+    result = best_move(game_node) if useStockfish else query_lichess_position(game_node)
     if not useStockfish:
         total_games = result["white"] + result["draws"] + result["black"]
 
-        top_moves = get_top_75_percent_moves(result["moves"], total_games)
+        top_moves = get_top_75_percent_moves(result["moves"], total_games, MIN_GAMES)
     else:
+        if not result:
+            return
         top_moves = [{"uci": result[0], "san": result[1], "score": result[2]}]
     if not top_moves:
         return
@@ -271,7 +318,7 @@ build_repertoire(node)
 
 
 def save_repertoire_to_file(game, filename="repertoire.pgn"):
-    filename = f"{turn}_{COVERAGE_RATE}_{MIN_GAMES}-{'_'.join(BEGINING_MOVES.split(' '))}-rep.pgn"
+    filename = f"{turn}_{COVERAGE_RATE}_{MAX_VARIATIONS}_{MIN_GAMES}-{'_'.join(BEGINING_MOVES.split(' '))}-rep_con.pgn"
     with open(filename, "w") as f:
         exporter = chess.pgn.FileExporter(f)
         game.accept(exporter)

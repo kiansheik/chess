@@ -68,7 +68,24 @@
   <option disabled selected>Select a PGN</option>
 </select>
 <button onclick="loadSelectedPGN()">Load</button>
-  
+
+<!-- New: File input for PGN upload -->
+<label for="pgn-file">Or upload a PGN file:</label>
+<input type="file" id="pgn-file" accept=".pgn" onchange="handlePGNUpload(event)" />
+<script>
+  function handlePGNUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const text = e.target.result;
+      document.getElementById("pgn-input").value = text;
+      document.getElementById("status").textContent = "PGN loaded from file.";
+    };
+    reader.readAsText(file);
+  }
+</script>
 
 <br>  
   <textarea id="pgn-input" placeholder="Paste PGN here..."></textarea>
